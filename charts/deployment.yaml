@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: spring-boot-app
-        image: tsamodocker2020/ultimate-cicd-pipeline:v1
+        image: tsamodocker2020/ultimate-cicd-pipeline:v0
         ports:
         - containerPort: 8081

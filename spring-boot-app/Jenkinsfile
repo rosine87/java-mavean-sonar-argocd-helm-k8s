@@ -18,6 +18,7 @@ pipeline {
     GIT_REPO_NAME = "java-mavean-sonar-argocd-helm-k8s"
     GIT_USER_NAME = "rosine87"
     MAVEN_OPTS = "-Dmaven.repo.local=${WORKSPACE}/.m2/repository"
+    SONAR_USER_HOME = "${WORKSPACE}/.sonar"
     // SONAR_URL vient de Jenkins (global env var)
   }
 
@@ -51,13 +52,10 @@ pipeline {
     /////////////////////////////////////////////////////////
     stage('2. Analyse Statique SonarQube') {
       steps {
-        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-          sh """
-          cd spring-boot-app
-            mvn sonar:sonar \
-              -Dsonar.login=$SONAR_AUTH_TOKEN \
-              -Dsonar.host.url=${env.SONAR_URL}
-          """
+        dir('spring-boot-app') {
+          withSonarQubeEnv('SONAR') {
+            sh 'mvn -B -Dsonar.userHome=$WORKSPACE/.sonar sonar:sonar'
+          }
         }
       }
     }

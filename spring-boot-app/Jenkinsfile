@@ -71,35 +71,41 @@ pipeline {
     }
 
     stage('4. Mise à jour du manifeste Kubernetes') {
-      agent any
+      agent none
       steps {
         withCredentials([string(credentialsId: 'github_secret', variable: 'GITHUB_TOKEN')]) {
           sh """
             set -e
+
             REPO_DIR="\$WORKSPACE/temp-gitops-repo"
             rm -rf "\$REPO_DIR"
             mkdir -p "\$REPO_DIR"
 
+            echo "CLONE REPO..."
             git clone https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git "\$REPO_DIR"
             cd "\$REPO_DIR"
+
+            echo "CONTENU DU REPO:"
+            ls -R
 
             git config user.email "rosinetsamo15@gmail.com"
             git config user.name "rosine87"
 
-            sed -i "s#image: tsamodocker2020/ultimate-cicd:.*#image: tsamodocker2020/ultimate-cicd:${BUILD_NUMBER}#" \
-              java-maven-sonar-argocd-helm-k8s/charts/deployment.yaml
+            echo "UPDATE IMAGE VERSION DANS deployment.yaml"
 
-            git add java-maven-sonar-argocd-helm-k8s/charts/deployment.yaml
+            sed -i "s#image: .*#image: ${DOCKER_IMAGE}#g" charts/deployment.yaml
+
+            git add charts/deployment.yaml
 
             if git diff --staged --quiet; then
               echo "Aucun changement → rien à pousser"
               exit 0
             fi
 
-            git commit -m "Deploy v${BUILD_NUMBER} (build #${BUILD_NUMBER})"
+            git commit -m "Deploy v${BUILD_NUMBER}"
             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:master
 
-            echo "Push réussi ! ArgoCD va déployer la v${BUILD_NUMBER}"
+            echo "Push réussi → ArgoCD va déployer 🚀"
           """
         }
       }

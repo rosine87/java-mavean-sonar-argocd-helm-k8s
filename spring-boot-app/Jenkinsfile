@@ -30,7 +30,7 @@ pipeline {
     /////////////////////////////////////////////////////////
     stage('0. Checkout') {
       steps {
-        git branch: 'main', url: "https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git"
+        git branch: 'master', url: "https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git"
       }
     }
 

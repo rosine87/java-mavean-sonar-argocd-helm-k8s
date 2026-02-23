@@ -17,6 +17,7 @@ pipeline {
     DOCKER_IMAGE = "tsamodocker2020/ultimate-cicd-pipeline:${BUILD_NUMBER}"
     GIT_REPO_NAME = "java-mavean-sonar-argocd-helm-k8s"
     GIT_USER_NAME = "rosine87"
+    MAVEN_OPTS = "-Dmaven.repo.local=${WORKSPACE}/.m2/repository"
     // SONAR_URL vient de Jenkins (global env var)
   }
 
@@ -39,10 +40,9 @@ pipeline {
     /////////////////////////////////////////////////////////
     stage('1. Build et Tests (Maven)') {
       steps {
-        sh """
-          cd spring-boot-app
-          mvn clean package
-        """
+        dir('spring-boot-app') {
+          sh 'mvn -B clean package'
+        }
       }
     }
 

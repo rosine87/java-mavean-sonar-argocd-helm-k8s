@@ -52,11 +52,17 @@ pipeline {
     /////////////////////////////////////////////////////////
     stage('2. Analyse Statique SonarQube') {
       steps {
-        dir('spring-boot-app') {
-          withSonarQubeEnv('SONAR') {
-            sh 'mvn -B -Dsonar.userHome=$WORKSPACE/.sonar sonar:sonar'
+          dir('spring-boot-app') {
+            withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
+              sh '''
+                mvn -B \
+                  -Dsonar.host.url=$SONAR_HOST_URL \
+                  -Dsonar.token=$SONAR_TOKEN \
+                  -Dsonar.userHome=$SONAR_USER_HOME \
+                  sonar:sonar
+              '''
+            }
           }
-        }
       }
     }
 

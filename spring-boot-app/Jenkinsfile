@@ -19,6 +19,7 @@ pipeline {
     GIT_USER_NAME = "rosine87"
     MAVEN_OPTS = "-Dmaven.repo.local=${WORKSPACE}/.m2/repository"
     SONAR_USER_HOME = "${WORKSPACE}/.sonar"
+    SONAR_HOST_URL = 'http://host.docker.internal:9000'
     // SONAR_URL vient de Jenkins (global env var)
   }
 

@@ -71,7 +71,7 @@ pipeline {
     }
 
     stage('4. Mise à jour du manifeste Kubernetes') {
-      agent none
+      agent any
       steps {
         withCredentials([string(credentialsId: 'github_secret', variable: 'GITHUB_TOKEN')]) {
           sh """

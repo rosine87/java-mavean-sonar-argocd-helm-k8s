@@ -4,8 +4,11 @@ pipeline {
   // AGENT DOCKER POUR MAVEN + SONAR + DOCKER BUILDS
   ////////////////////////////////////////////////////////////////////////////
   agent {
-   agent any
-  }
+        docker {
+            image 'maven:3.9.6-eclipse-temurin-21'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
   ////////////////////////////////////////////////////////////////////////////
   // VARIABLES GLOBALES
@@ -90,7 +93,7 @@ pipeline {
     stage('4. Mise à jour du manifeste Kubernetes') {
       agent none   // <-- indispensable
       steps {
-        withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+        withCredentials([string(credentialsId: 'github_secret', variable: 'GITHUB_TOKEN')]) {
           sh """
             set -e
 

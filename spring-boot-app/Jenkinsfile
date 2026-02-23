@@ -20,6 +20,7 @@ pipeline {
     MAVEN_OPTS = "-Dmaven.repo.local=${WORKSPACE}/.m2/repository"
     SONAR_USER_HOME = "${WORKSPACE}/.sonar"
     SONAR_HOST_URL = 'http://host.docker.internal:9000'
+    DOCKER_IMAGE = "tsamodocker2020/ultimate-cicd-pipeline:${BUILD_NUMBER}"
     // SONAR_URL vient de Jenkins (global env var)
   }
 
@@ -70,27 +71,20 @@ pipeline {
     /////////////////////////////////////////////////////////
     // 3. DOCKER BUILD & PUSH
     /////////////////////////////////////////////////////////
-    stage('3. Build et Push Docker') {
+     stage('3. Build & Push Docker') {
+      agent any   // <-- IMPORTANT: ici on sort du container Maven
       steps {
-        script {
-          sh """
-          cd spring-boot-app
-            docker build -t ${DOCKER_IMAGE} .
-          """
+        dir('spring-boot-app') {
+          sh "docker build -t ${DOCKER_IMAGE} ."
+        }
 
-          docker.withRegistry('https://index.docker.io/v1/', "docker-creds") {
-            docker.image("${DOCKER_IMAGE}").push()
-          }
-
-          // TAG latest
-          sh "docker tag ${DOCKER_IMAGE} tsamodocker2020/ultimate-cicd-pipeline:latest"
-
-          docker.withRegistry('https://index.docker.io/v1/', "docker-creds") {
-            docker.image("tsamodocker2020/ultimate-cicd-pipeline:latest").push()
-          }
+        docker.withRegistry('https://index.docker.io/v1/', 'docker-creds') {
+          docker.image("${DOCKER_IMAGE}").push()
+          docker.image("${DOCKER_IMAGE}").push('latest')
         }
       }
     }
+  
 
     /////////////////////////////////////////////////////////
     // 4. UPDATE K8S MANIFEST (HORS DOCKER - TRÈS IMPORTANT)
